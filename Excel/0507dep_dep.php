@@ -8,8 +8,11 @@ require_once 'reader.php';
   
   echo "<br>【計算學校與科系出現次數】<br>";
   echo "<br>";
-  echo "<form action='0502_inputfile_only_dep.php' method='get'>";
+  echo "<form action='0507dep_dep.php' method='get'>";
   echo "　　請選擇要輸入的檔案: <input type='file' name='F'>";
+  echo "<br>";
+  echo "<br>";
+  echo "　　請輸入要搜尋的學校: <input type='text' name='N' />";
   echo "<br>";
   echo "<br>";
   echo "　　請輸入要搜尋的科系: <input type='text' name='D' /> <h>（如不使用則不輸入即可）</h>";
@@ -20,7 +23,7 @@ require_once 'reader.php';
   
   
 
-	if(isset($_GET['D']))
+	if(isset($_GET['N']))
 	{
 	$file_name = $_GET['F'];
 	$data = new Spreadsheet_Excel_Reader();
@@ -53,6 +56,11 @@ require_once 'reader.php';
 	fputcsv($fp, $head);*/
 	
 	
+	$i_dep = 0;
+	$dep_name = array();
+	$dep_num = array();
+	
+	
 	for ($i = 1; $i <= $data->sheets[0]['numRows']; $i++) {
 		for ($j = 1; $j <= $data->sheets[0]['numCols']; $j++) {
 			
@@ -60,7 +68,7 @@ require_once 'reader.php';
 
 		}
 		
-		if(strpos($value[4], $str[1])!== false){
+		if(strpos($value[5], $str[0])!== false){
 
 
 				if(array_key_exists($value[0], $id_array)){
@@ -78,11 +86,33 @@ require_once 'reader.php';
 			
 		}
 
+		if($str[1] != ""){
+		if((strpos($value[4], $str[1])!== false) && (strpos($value[5], $str[0])!== false)){
 
+
+				if(array_key_exists($value[0], $id_array2)){
+
+				}else{
+					$str_count2++;
+					$id_array2[$value[0]] = "USED";
+					echo "　　➔　　　學校『".$str[0]."』領域【".$str[1]."】已搜尋到".$str_count2."筆資料<br>";
+					
+					array_push($index_array2, $value[0]);
+					
+					
+
+				}
+			
+		}
+			
+
+	}
+		
+		
 	
 	}  
 	
-	echo "<br>　　➔　　　".$str[1]."總共出現次數：".$str_count;
+	echo "<br>　　➔　　　".$str[0]."總共出現次數：".$str_count;
 	if($str_count2 != 0){
 	echo "<br>　　➔　　　其中領域為".$str[1]."則出現次數為：".$str_count2;
 
@@ -96,7 +126,22 @@ require_once 'reader.php';
 		
 		}
 			if(in_array($value[0], $index_array2)){
-			fputcsv($fp, $value);	}
+			fputcsv($fp, $value);	
+			
+//試著抓出其他同ID學校
+			if(strpos($value[5], $str[0])== false){
+				
+				$num_name = $value[0].$value[5];
+				if(in_array($num_name,$dep_num)==false){
+				
+				array_push($dep_name, $value[5]);
+				//$dep_name[$i_dep] = $value[5];
+				//$dep_num[$i_dep] = 
+				//$i_dep++;
+				array_push($dep_num,$num_name);
+				}
+				}
+			}
 			else{}
 		}
 	}else{
@@ -109,16 +154,31 @@ require_once 'reader.php';
 		
 		}
 			if(in_array($value[0], $index_array)){
-			fputcsv($fp, $value);	}
+			fputcsv($fp, $value);	
+			
+//試著抓出其他同ID學校
+			if(strpos($value[5], $str[0])== false){
+				
+				$num_name = $value[0].$value[5];
+				if(in_array($num_name,$dep_num)==false){
+				
+				array_push($dep_name, $value[5]);
+				//$dep_name[$i_dep] = $value[5];
+				//$dep_num[$i_dep] = 
+				//$i_dep++;
+				array_push($dep_num,$num_name);
+				}
+				}
+			}
 			else{}
 		}
 	}
 	echo "<br>　　➔　　　匯出完成";
 	fclose($fp);
 	echo "<br>　　➔　　　關閉連線";
+	echo "<br>　　➔　　　";
+	print_r(array_count_values($dep_name));
 	}
-
-
 
 
 ?>
