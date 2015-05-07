@@ -38,6 +38,10 @@ require_once 'reader.php';
 	$id_array2 = array();
 	$str_count = 0;
 	$str_count2 = 0;
+	
+	$all_count = 0;
+	$all_count2 = 0;
+	
 	$str[0] = $_GET['N'];
 	//$str = $_GET['N'];
 	$str[1] = $_GET['D'];
@@ -59,6 +63,7 @@ require_once 'reader.php';
 	$i_dep = 0;
 	$dep_name = array();
 	$dep_num = array();
+	$dep_index = array();
 	
 	
 	for ($i = 1; $i <= $data->sheets[0]['numRows']; $i++) {
@@ -69,7 +74,8 @@ require_once 'reader.php';
 		}
 		
 		if(strpos($value[5], $str[0])!== false){
-
+				
+				$all_count++;
 
 				if(array_key_exists($value[0], $id_array)){
 
@@ -89,7 +95,7 @@ require_once 'reader.php';
 		if($str[1] != ""){
 		if((strpos($value[4], $str[1])!== false) && (strpos($value[5], $str[0])!== false)){
 
-
+				//$all_count2++;
 				if(array_key_exists($value[0], $id_array2)){
 
 				}else{
@@ -113,9 +119,12 @@ require_once 'reader.php';
 	}  
 	
 	echo "<br>　　➔　　　".$str[0]."總共出現次數：".$str_count;
+	
+	echo "<br>　　➔　　　同校合作為".($all_count-$str_count)."次";
+	
 	if($str_count2 != 0){
-	echo "<br>　　➔　　　其中領域為".$str[1]."則出現次數為：".$str_count2;
-
+	//echo "<br>　　➔　　　其中領域為".$str[1]."則出現次數為：".$str_count2;
+	//echo "<br>　　➔　　　其中領域同校合作為".($all_count2-$str_count2)."次";
 
 	echo "<br>　　➔　　　開始匯出excel";
 	
@@ -127,6 +136,11 @@ require_once 'reader.php';
 		}
 			if(in_array($value[0], $index_array2)){
 			fputcsv($fp, $value);	
+			//抓出總次數
+			if(strpos($value[5], $str[0])!== false){
+			$all_count2++;
+			}
+			
 			
 //試著抓出其他同ID學校
 			if(strpos($value[5], $str[0])== false){
@@ -139,6 +153,10 @@ require_once 'reader.php';
 				//$dep_num[$i_dep] = 
 				//$i_dep++;
 				array_push($dep_num,$num_name);
+				if(in_array($value[5],$dep_index)==false){
+					
+					array_push($dep_index,$value[5]);
+				}
 				}
 				}
 			}
@@ -155,7 +173,9 @@ require_once 'reader.php';
 		}
 			if(in_array($value[0], $index_array)){
 			fputcsv($fp, $value);	
-			
+						if(strpos($value[5], $str[0])!== false){
+			$all_count2++;
+			}
 //試著抓出其他同ID學校
 			if(strpos($value[5], $str[0])== false){
 				
@@ -167,17 +187,44 @@ require_once 'reader.php';
 				//$dep_num[$i_dep] = 
 				//$i_dep++;
 				array_push($dep_num,$num_name);
+				
+				if(in_array($value[5],$dep_index)==false){
+					
+					array_push($dep_index,$value[5]);
+				}
+				
+				
 				}
 				}
 			}
 			else{}
+			
 		}
+		
 	}
+		if($str_count2 != 0){
+	echo "<br>　　➔　　　其中領域為".$str[1]."則出現次數為：".$str_count2;
+	echo "<br>　　➔　　　其中領域同校合作為".($all_count2-$str_count2)."次";
+		}
+	
 	echo "<br>　　➔　　　匯出完成";
 	fclose($fp);
 	echo "<br>　　➔　　　關閉連線";
 	echo "<br>　　➔　　　";
-	print_r(array_count_values($dep_name));
+	//print_r(array_count_values($dep_name));
+	$answer = array_count_values($dep_name);
+	$dep_dep_file = "tmp/dep_dep".date('Y_m_d_H_i_s').".csv";
+	$fp = fopen($dep_dep_file, 'w');
+	for($i=0;$i<count($dep_index);$i++){
+		echo "<br>　　➔　　　與".$dep_index[$i]."合作次數為：".$answer[$dep_index[$i]]."次";
+		$value_dep[0] = $dep_index[$i];
+		$value_dep[1] = $answer[$dep_index[$i]];
+		
+		fputcsv($fp, $value_dep);
+	}
+	echo "<br>　　➔　　　將次數匯出csv完成";
+	echo "<br>　　➔　　　檔名為：".substr($dep_dep_file,4);
+	fclose($fp);
 	}
 
 
