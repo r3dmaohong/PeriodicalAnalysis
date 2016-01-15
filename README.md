@@ -1,2 +1,3 @@
-幫二洋分析篩選資料
-PHP
+data analysis for james jan's thesis
+
+using 'PHP'
