@@ -1,2 +1,2 @@
-#Import excel and doing analysis 
+###Import Excel files and doing some analysis 
 Data analysis for James Jan's thesis...
