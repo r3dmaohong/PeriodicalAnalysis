@@ -1,4 +1,2 @@
-#import excel and analysis by PHP
-data analysis for james jan's thesis
-
-using 'PHP'
+#Import excel and doing analysis 
+Data analysis for James Jan's thesis...
